@@ -1,16 +1,16 @@
 import { getAllPokemon } from '@/src/api/pokemon';
 import React, { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    FlatList,
-    Image,
-    Modal,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  FlatList,
+  Image,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 const TOTAL_POKEMON = 1118;
@@ -35,6 +35,7 @@ export default function Pokedex() {
   const [selectedGeneration, setSelectedGeneration] = useState<string | null>(null);
   const [filteredList, setFilteredList] = useState<any[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
+  const [selectedPokemon, setSelectedPokemon] = useState<any | null>(null);
 
   const loadAllPokemon = async () => {
     setLoading(true);
@@ -144,7 +145,10 @@ export default function Pokedex() {
           clearButtonMode="while-editing"
         />
         <TouchableOpacity
-          onPress={() => setModalVisible(true)}
+          onPress={() => {
+            setModalVisible(true);
+            setSelectedPokemon(null);  // <--- cerrar modal detalle
+          }}
           style={styles.filterButton}
         >
           <Text style={{ color: 'white', fontWeight: 'bold' }}>Filtros</Text>
@@ -160,24 +164,55 @@ export default function Pokedex() {
           numColumns={2}
           contentContainerStyle={styles.list}
           renderItem={({ item }) => (
-            <View style={styles.card}>
+            <TouchableOpacity
+              style={styles.card}
+              onPress={() => {
+                setSelectedPokemon(item);
+                setModalVisible(false);
+              }}
+            >
               <Image source={{ uri: item.image }} style={styles.image} />
               <Text style={styles.idText}>#{item.id}</Text>
               <Text style={styles.name}>{formatPokemonName(item.name)}</Text>
               <View style={styles.types}>
-                {item.types.map((type: string) => (
-                  <View
-                    key={type}
-                    style={[
-                      styles.typeBadge,
-                      { backgroundColor: typeColors[type.toLowerCase()] || '#777' },
-                    ]}
-                  >
-                    <Text style={styles.typeText}>{type.toUpperCase()}</Text>
-                  </View>
-                ))}
+                {item.types.map((type: string) => {
+                  const isSelected = selectedTypes.includes(type.toLowerCase());
+                  return (
+                    <TouchableOpacity
+                      key={type}
+                      onPress={() => toggleType(type.toLowerCase())}
+                      style={[
+                        styles.typeBadge,
+                        {
+                          backgroundColor: typeColors[type.toLowerCase()] || '#777',
+                          opacity: isSelected ? 1 : 0.6,
+                          borderWidth: isSelected ? 2 : 0,
+                          borderColor: isSelected ? 'white' : 'transparent',
+                          shadowColor: isSelected ? '#000' : 'transparent',
+                          shadowOffset: { width: 0, height: 1 },
+                          shadowOpacity: isSelected ? 0.3 : 0,
+                          shadowRadius: isSelected ? 2 : 0,
+                          elevation: isSelected ? 3 : 0,
+                        },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.typeText,
+                          {
+                            textShadowColor: isSelected ? 'black' : 'transparent',
+                            textShadowOffset: { width: 0.5, height: 0.5 },
+                            textShadowRadius: 1,
+                          },
+                        ]}
+                      >
+                        {type.toUpperCase()}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
               </View>
-            </View>
+            </TouchableOpacity>
           )}
           onEndReached={loadMore}
           onEndReachedThreshold={0.5}
@@ -262,6 +297,73 @@ export default function Pokedex() {
           </View>
         </View>
       </Modal>
+
+      <Modal
+        visible={selectedPokemon !== null}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setSelectedPokemon(null)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { alignItems: 'center' }]}>
+            <TouchableOpacity
+              style={{ alignSelf: 'flex-end' }}
+              onPress={() => setSelectedPokemon(null)}
+            >
+              <Text style={{ fontSize: 18, fontWeight: 'bold' }}>✕</Text>
+            </TouchableOpacity>
+
+            {selectedPokemon && (
+              <ScrollView style={{ width: '100%' }} contentContainerStyle={{ alignItems: 'center' }}>
+                <Image source={{ uri: selectedPokemon.image }} style={{ width: 150, height: 150 }} />
+                <Text style={{ fontSize: 20, fontWeight: 'bold', marginTop: 12 }}>
+                  {formatPokemonName(selectedPokemon.name)}
+                </Text>
+                <Text style={{ fontSize: 16, color: '#666', marginVertical: 6, fontWeight: 'bold' }}>
+                  ID: #{selectedPokemon.id}
+                </Text>
+
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' }}>
+                  {selectedPokemon.types.map((type: string) => (
+                    <View
+                      key={type}
+                      style={{
+                        backgroundColor: typeColors[type] || '#888',
+                        paddingHorizontal: 10,
+                        paddingVertical: 4,
+                        borderRadius: 10,
+                        margin: 4,
+                      }}
+                    >
+                      <Text style={{ color: 'white', fontWeight: 'bold' }}>{type.toUpperCase()}</Text>
+                    </View>
+                  ))}
+                </View>
+
+                <Text style={{ marginTop: 10, fontWeight: 'bold' }}>
+                  Generación: {selectedPokemon.generation?.replace('generation-', 'Gen ').toUpperCase()}
+                </Text>
+
+                <Text style={{ marginTop: 10 }}>Altura: {selectedPokemon.height / 10} m</Text>
+                <Text>Peso: {selectedPokemon.weight / 10} kg</Text>
+
+                <Text style={{ marginTop: 10, fontWeight: 'bold' }}>Habilidades:</Text>
+                {selectedPokemon.abilities.map((ab: string) => (
+                  <Text key={ab}>• {ab}</Text>
+                ))}
+
+                <Text style={{ marginTop: 10, fontWeight: 'bold' }}>Estadísticas base:</Text>
+                {selectedPokemon.stats.map((stat: any) => (
+                  <Text key={stat.name}>
+                    {stat.name.toUpperCase()}: {stat.value}
+                  </Text>
+                ))}
+              </ScrollView>
+            )}
+          </View>
+        </View>
+      </Modal>
+
     </View>
   );
 }
