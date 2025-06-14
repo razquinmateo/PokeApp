@@ -1,17 +1,22 @@
 import { getAllPokemon } from '@/src/api/pokemon';
+import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Dimensions,
   FlatList,
   Image,
   Modal,
   ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
+
+const { width } = Dimensions.get('window');
 
 const TOTAL_POKEMON = 1118;
 const LOAD_BATCH = 20;
@@ -35,6 +40,7 @@ export default function Pokedex() {
   const [selectedGeneration, setSelectedGeneration] = useState<string | null>(null);
   const [filteredList, setFilteredList] = useState<any[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
+  const [selectedPokemon, setSelectedPokemon] = useState<any | null>(null);
 
   const loadAllPokemon = async () => {
     setLoading(true);
@@ -132,8 +138,15 @@ export default function Pokedex() {
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      <View style={styles.topBar}>
+  <View style={{ flex: 1 }}>
+    <StatusBar barStyle="dark-content" backgroundColor="white" />
+    <View style={[styles.topBar, { paddingTop: (StatusBar.currentHeight || 20) + 10 }]}>
+      <Image
+        source={require('../../assets/images/Pokedex.png')}
+        style={styles.headerImage}
+        resizeMode="contain"
+      />
+      <View style={styles.searchContainer}>
         <TextInput
           style={[styles.searchInput, { flex: 1 }]}
           placeholder="Buscar Pokémon..."
@@ -144,12 +157,16 @@ export default function Pokedex() {
           clearButtonMode="while-editing"
         />
         <TouchableOpacity
-          onPress={() => setModalVisible(true)}
+          onPress={() => {
+            setModalVisible(true);
+            setSelectedPokemon(null);
+          }}
           style={styles.filterButton}
         >
           <Text style={{ color: 'white', fontWeight: 'bold' }}>Filtros</Text>
         </TouchableOpacity>
       </View>
+    </View>
 
       {loading ? (
         <ActivityIndicator style={{ marginTop: 40 }} size="large" />
@@ -160,24 +177,55 @@ export default function Pokedex() {
           numColumns={2}
           contentContainerStyle={styles.list}
           renderItem={({ item }) => (
-            <View style={styles.card}>
+            <TouchableOpacity
+              style={styles.card}
+              onPress={() => {
+                setSelectedPokemon(item);
+                setModalVisible(false);
+              }}
+            >
               <Image source={{ uri: item.image }} style={styles.image} />
               <Text style={styles.idText}>#{item.id}</Text>
               <Text style={styles.name}>{formatPokemonName(item.name)}</Text>
               <View style={styles.types}>
-                {item.types.map((type: string) => (
-                  <View
-                    key={type}
-                    style={[
-                      styles.typeBadge,
-                      { backgroundColor: typeColors[type.toLowerCase()] || '#777' },
-                    ]}
-                  >
-                    <Text style={styles.typeText}>{type.toUpperCase()}</Text>
-                  </View>
-                ))}
+                {item.types.map((type: string) => {
+                  const isSelected = selectedTypes.includes(type.toLowerCase());
+                  return (
+                    <TouchableOpacity
+                      key={type}
+                      onPress={() => toggleType(type.toLowerCase())}
+                      style={[
+                        styles.typeBadge,
+                        {
+                          backgroundColor: typeColors[type.toLowerCase()] || '#777',
+                          opacity: isSelected ? 1 : 0.6,
+                          borderWidth: isSelected ? 2 : 0,
+                          borderColor: isSelected ? 'white' : 'transparent',
+                          shadowColor: isSelected ? '#000' : 'transparent',
+                          shadowOffset: { width: 0, height: 1 },
+                          shadowOpacity: isSelected ? 0.3 : 0,
+                          shadowRadius: isSelected ? 2 : 0,
+                          elevation: isSelected ? 3 : 0,
+                        },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.typeText,
+                          {
+                            textShadowColor: isSelected ? 'black' : 'transparent',
+                            textShadowOffset: { width: 0.5, height: 0.5 },
+                            textShadowRadius: 1,
+                          },
+                        ]}
+                      >
+                        {type.toUpperCase()}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
               </View>
-            </View>
+            </TouchableOpacity>
           )}
           onEndReached={loadMore}
           onEndReachedThreshold={0.5}
@@ -262,8 +310,110 @@ export default function Pokedex() {
           </View>
         </View>
       </Modal>
-    </View>
-  );
+
+      <Modal
+      visible={selectedPokemon !== null}
+      animationType="slide"
+      transparent={true}
+      onRequestClose={() => setSelectedPokemon(null)}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => setSelectedPokemon(null)}
+          >
+            <Ionicons name="close" size={24} color="#333" />
+          </TouchableOpacity>
+
+          {selectedPokemon && (
+            <ScrollView
+              style={{ width: '100%' }}
+              contentContainerStyle={styles.modalScrollContent}
+            >
+              {/* Pokémon Image and Name */}
+              <View style={styles.imageContainer}>
+                <Image
+                  source={{ uri: selectedPokemon.image }}
+                  style={styles.pokemonImage}
+                />
+              </View>
+              <Text style={styles.pokemonName}>
+                {formatPokemonName(selectedPokemon.name)}
+              </Text>
+              <Text style={styles.pokemonId}>
+                ID: #{selectedPokemon.id}
+              </Text>
+
+              {/* Types */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Tipos</Text>
+                <View style={styles.typesContainer}>
+                  {selectedPokemon.types.map((type: string) => (
+                    <View
+                      key={type}
+                      style={[
+                        styles.typeBadge,
+                        { backgroundColor: typeColors[type.toLowerCase()] || '#888' },
+                      ]}
+                    >
+                      <Text style={styles.typeText}>{type.toUpperCase()}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+
+              {/* General Info */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Información General</Text>
+                <Text style={styles.detailText}>
+                  Generación: {selectedPokemon.generation?.replace('generation-', 'Gen ').toUpperCase()}
+                </Text>
+                <Text style={styles.detailText}>
+                  Altura: {selectedPokemon.height / 10} m
+                </Text>
+                <Text style={styles.detailText}>
+                  Peso: {selectedPokemon.weight / 10} kg
+                </Text>
+              </View>
+
+              {/* Abilities */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Habilidades</Text>
+                {selectedPokemon.abilities.map((ab: string) => (
+                  <Text key={ab} style={styles.detailText}>
+                    • {ab.charAt(0).toUpperCase() + ab.slice(1)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* Base Stats */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Estadísticas Base</Text>
+                {selectedPokemon.stats.map((stat: any) => (
+                  <View key={stat.name} style={styles.statRow}>
+                    <Text style={styles.statName}>
+                      {stat.name.toUpperCase()}:
+                    </Text>
+                    <Text style={styles.statValue}>{stat.value}</Text>
+                    <View style={styles.statBar}>
+                      <View
+                        style={[
+                          styles.statBarFill,
+                          { width: `${(stat.value / 255) * 100}%` },
+                        ]}
+                      />
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </ScrollView>
+          )}
+        </View>
+      </View>
+    </Modal>
+  </View>
+);
 }
 
 const typeColors: Record<string, string> = {
@@ -300,13 +450,23 @@ const genColors: Record<string, string> = {
 };
 
 const styles = StyleSheet.create({
+  // Existing styles (unchanged)
   topBar: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     paddingHorizontal: 12,
-    paddingTop: 12,
     paddingBottom: 6,
     alignItems: 'center',
     backgroundColor: 'white',
+  },
+  headerImage: {
+    width: width * 0.6,
+    height: 60,
+    marginBottom: 10,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    width: '100%',
+    alignItems: 'center',
   },
   searchInput: {
     height: 40,
@@ -379,10 +539,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   modalContent: {
-    backgroundColor: 'white',
+    backgroundColor: '#F5F5F5', // Light gray for Pokémon theme
     borderRadius: 16,
     padding: 20,
-    maxHeight: '80%',
+    maxHeight: '85%', // Increased slightly for more content
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 2 },
   },
   modalTitle: {
     fontSize: 22,
@@ -436,5 +601,99 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 10,
     alignItems: 'center',
+  },
+  // New styles for Pokémon details modal
+  closeButton: {
+    alignSelf: 'flex-end',
+    padding: 8,
+    marginBottom: 8,
+  },
+  modalScrollContent: {
+    alignItems: 'center',
+    paddingBottom: 20,
+  },
+  imageContainer: {
+    backgroundColor: '#FFFFFF', // White background for image
+    borderRadius: 100,
+    padding: 10,
+    marginBottom: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  pokemonImage: {
+    width: 180, // Larger for prominence
+    height: 180,
+  },
+  pokemonName: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#222',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  pokemonId: {
+    fontSize: 16,
+    color: '#666',
+    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  section: {
+    width: '100%',
+    marginBottom: 16,
+    padding: 12,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000', // Pokémon red
+    marginBottom: 8,
+  },
+  typesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+  },
+  detailText: {
+    fontSize: 14,
+    color: '#333',
+    marginBottom: 4,
+  },
+  statRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  statName: {
+    flex: 2,
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+  },
+  statValue: {
+    flex: 1,
+    fontSize: 14,
+    color: '#333',
+    textAlign: 'center',
+  },
+  statBar: {
+    flex: 3,
+    height: 8,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  statBarFill: {
+    height: '100%',
+    backgroundColor: '#4CAF50', // Green for stat bars
+    borderRadius: 4,
   },
 });

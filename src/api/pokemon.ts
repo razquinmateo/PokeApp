@@ -17,7 +17,20 @@ export async function getAllPokemon(offset = 0, limit = 20) {
         name: details.name,
         image: details.sprites.other['official-artwork'].front_default,
         types: details.types.map((t: any) => t.type.name),
-        generation: species.generation.name, // Ejemplo: "generation-i"
+        generation: species.generation.name,
+
+        // ✅ Habilidades
+        abilities: details.abilities.map((a: any) => a.ability.name),
+
+        // ✅ Stats
+        stats: details.stats.map((s: any) => ({
+          name: s.stat.name,
+          value: s.base_stat,
+        })),
+
+        // ✅ Altura y peso
+        height: details.height, // Altura en decímetros
+        weight: details.weight, // Peso en hectogramos
       };
     })
   );
