@@ -138,35 +138,35 @@ export default function Pokedex() {
   };
 
   return (
-  <View style={{ flex: 1 }}>
-    <StatusBar barStyle="dark-content" backgroundColor="white" />
-    <View style={[styles.topBar, { paddingTop: (StatusBar.currentHeight || 20) + 10 }]}>
-      <Image
-        source={require('../../assets/images/Pokedex.png')}
-        style={styles.headerImage}
-        resizeMode="contain"
-      />
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={[styles.searchInput, { flex: 1 }]}
-          placeholder="Buscar Pokémon..."
-          value={searchText}
-          onChangeText={setSearchText}
-          autoCapitalize="none"
-          autoCorrect={false}
-          clearButtonMode="while-editing"
+    <View style={{ flex: 1 }}>
+      <StatusBar barStyle="dark-content" backgroundColor="white" />
+      <View style={[styles.topBar, { paddingTop: (StatusBar.currentHeight || 20) + 10 }]}>
+        <Image
+          source={require('../../assets/images/Pokedex.png')}
+          style={styles.headerImage}
+          resizeMode="contain"
         />
-        <TouchableOpacity
-          onPress={() => {
-            setModalVisible(true);
-            setSelectedPokemon(null);
-          }}
-          style={styles.filterButton}
-        >
-          <Text style={{ color: 'white', fontWeight: 'bold' }}>Filtros</Text>
-        </TouchableOpacity>
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={[styles.searchInput, { flex: 1 }]}
+            placeholder="Buscar Pokémon..."
+            value={searchText}
+            onChangeText={setSearchText}
+            autoCapitalize="none"
+            autoCorrect={false}
+            clearButtonMode="while-editing"
+          />
+          <TouchableOpacity
+            onPress={() => {
+              setModalVisible(true);
+              setSelectedPokemon(null);
+            }}
+            style={styles.filterButton}
+          >
+            <Text style={{ color: 'white', fontWeight: 'bold' }}>Filtros</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
 
       {loading ? (
         <ActivityIndicator style={{ marginTop: 40 }} size="large" />
@@ -312,108 +312,141 @@ export default function Pokedex() {
       </Modal>
 
       <Modal
-      visible={selectedPokemon !== null}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={() => setSelectedPokemon(null)}
-    >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          <TouchableOpacity
-            style={styles.closeButton}
-            onPress={() => setSelectedPokemon(null)}
-          >
-            <Ionicons name="close" size={24} color="#333" />
-          </TouchableOpacity>
-
-          {selectedPokemon && (
-            <ScrollView
-              style={{ width: '100%' }}
-              contentContainerStyle={styles.modalScrollContent}
+        visible={selectedPokemon !== null}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setSelectedPokemon(null)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setSelectedPokemon(null)}
             >
-              {/* Pokémon Image and Name */}
-              <View style={styles.imageContainer}>
-                <Image
-                  source={{ uri: selectedPokemon.image }}
-                  style={styles.pokemonImage}
-                />
-              </View>
-              <Text style={styles.pokemonName}>
-                {formatPokemonName(selectedPokemon.name)}
-              </Text>
-              <Text style={styles.pokemonId}>
-                ID: #{selectedPokemon.id}
-              </Text>
+              <Ionicons name="close" size={24} color="#333" />
+            </TouchableOpacity>
 
-              {/* Types */}
-              <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Tipos</Text>
-                <View style={styles.typesContainer}>
-                  {selectedPokemon.types.map((type: string) => (
-                    <View
-                      key={type}
-                      style={[
-                        styles.typeBadge,
-                        { backgroundColor: typeColors[type.toLowerCase()] || '#888' },
-                      ]}
-                    >
-                      <Text style={styles.typeText}>{type.toUpperCase()}</Text>
+            {selectedPokemon && (
+              <ScrollView
+                style={{ width: '100%' }}
+                contentContainerStyle={styles.modalScrollContent}
+              >
+                {/* Pokémon Image and Name */}
+                <View style={styles.imageContainer}>
+                  <Image
+                    source={{ uri: selectedPokemon.image }}
+                    style={styles.pokemonImage}
+                  />
+                </View>
+                <Text style={styles.pokemonName}>
+                  {formatPokemonName(selectedPokemon.name)}
+                </Text>
+                <Text style={styles.pokemonId}>
+                  ID: #{selectedPokemon.id}
+                </Text>
+
+                {/* Types */}
+                <View style={styles.section}>
+                  <Text style={styles.sectionTitle}>Tipos</Text>
+                  <View style={styles.typesContainer}>
+                    {selectedPokemon.types.map((type: string) => (
+                      <View
+                        key={type}
+                        style={[
+                          styles.typeBadge,
+                          { backgroundColor: typeColors[type.toLowerCase()] || '#888' },
+                        ]}
+                      >
+                        <Text style={styles.typeText}>{type.toUpperCase()}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+
+                {/* General Info */}
+                <View style={styles.section}>
+                  <Text style={styles.sectionTitle}>Información General</Text>
+                  <Text style={styles.detailText}>
+                    Generación: {selectedPokemon.generation?.replace('generation-', 'Gen ').toUpperCase()}
+                  </Text>
+                  <Text style={styles.detailText}>
+                    Altura: {selectedPokemon.height / 10} m
+                  </Text>
+                  <Text style={styles.detailText}>
+                    Peso: {selectedPokemon.weight / 10} kg
+                  </Text>
+                </View>
+
+                {/* Abilities */}
+                <View style={styles.section}>
+                  <Text style={styles.sectionTitle}>Habilidades</Text>
+                  {selectedPokemon.abilities.map((ab: string) => (
+                    <Text key={ab} style={styles.detailText}>
+                      • {ab.charAt(0).toUpperCase() + ab.slice(1)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/* Base Stats */}
+                <View style={styles.section}>
+                  <Text style={styles.sectionTitle}>Estadísticas Base</Text>
+                  {selectedPokemon.stats.map((stat: any) => (
+                    <View key={stat.name} style={styles.statRow}>
+                      <Text style={styles.statName}>
+                        {stat.name.toUpperCase()}:
+                      </Text>
+                      <Text style={styles.statValue}>{stat.value}</Text>
+                      <View style={styles.statBar}>
+                        <View
+                          style={[
+                            styles.statBarFill,
+                            { width: `${(stat.value / 255) * 100}%` },
+                          ]}
+                        />
+                      </View>
                     </View>
                   ))}
                 </View>
-              </View>
 
-              {/* General Info */}
-              <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Información General</Text>
-                <Text style={styles.detailText}>
-                  Generación: {selectedPokemon.generation?.replace('generation-', 'Gen ').toUpperCase()}
-                </Text>
-                <Text style={styles.detailText}>
-                  Altura: {selectedPokemon.height / 10} m
-                </Text>
-                <Text style={styles.detailText}>
-                  Peso: {selectedPokemon.weight / 10} kg
-                </Text>
-              </View>
-
-              {/* Abilities */}
-              <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Habilidades</Text>
-                {selectedPokemon.abilities.map((ab: string) => (
-                  <Text key={ab} style={styles.detailText}>
-                    • {ab.charAt(0).toUpperCase() + ab.slice(1)}
-                  </Text>
-                ))}
-              </View>
-
-              {/* Base Stats */}
-              <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Estadísticas Base</Text>
-                {selectedPokemon.stats.map((stat: any) => (
-                  <View key={stat.name} style={styles.statRow}>
-                    <Text style={styles.statName}>
-                      {stat.name.toUpperCase()}:
-                    </Text>
-                    <Text style={styles.statValue}>{stat.value}</Text>
-                    <View style={styles.statBar}>
-                      <View
-                        style={[
-                          styles.statBarFill,
-                          { width: `${(stat.value / 255) * 100}%` },
-                        ]}
-                      />
+                {/* Evolution Chain */}
+                {selectedPokemon.evolution_chain && selectedPokemon.evolution_chain.length > 1 && (
+                  <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Línea Evolutiva</Text>
+                    <View style={styles.evolutionContainer}>
+                      {selectedPokemon.evolution_chain.map((evo: any, index: number) => {
+                        const evoPokemon = allPokemon.find(p => p.name === evo.name);
+                        return (
+                          <View key={index} style={styles.evolutionStep}>
+                            {evoPokemon && (
+                              <Image
+                                source={{ uri: evoPokemon.image }}
+                                style={styles.evolutionImage}
+                              />
+                            )}
+                            <Text style={styles.evolutionName}>
+                              {formatPokemonName(evo.name)}
+                            </Text>
+                            {evo.min_level && (
+                              <Text style={styles.evolutionLevel}>
+                                (Nivel {evo.min_level})
+                              </Text>
+                            )}
+                            {index < selectedPokemon.evolution_chain.length - 1 && (
+                              <Ionicons name="arrow-forward" size={20} color="#666" style={styles.evolutionArrow} />
+                            )}
+                          </View>
+                        );
+                      })}
                     </View>
                   </View>
-                ))}
-              </View>
-            </ScrollView>
-          )}
+                )}
+              </ScrollView>
+            )}
+          </View>
         </View>
-      </View>
-    </Modal>
-  </View>
-);
+      </Modal>
+    </View>
+  );
 }
 
 const typeColors: Record<string, string> = {
@@ -450,7 +483,6 @@ const genColors: Record<string, string> = {
 };
 
 const styles = StyleSheet.create({
-  // Existing styles (unchanged)
   topBar: {
     flexDirection: 'column',
     paddingHorizontal: 12,
@@ -539,10 +571,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   modalContent: {
-    backgroundColor: '#F5F5F5', // Light gray for Pokémon theme
+    backgroundColor: '#F5F5F5',
     borderRadius: 16,
     padding: 20,
-    maxHeight: '85%', // Increased slightly for more content
+    maxHeight: '85%',
     elevation: 5,
     shadowColor: '#000',
     shadowOpacity: 0.2,
@@ -602,7 +634,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
   },
-  // New styles for Pokémon details modal
   closeButton: {
     alignSelf: 'flex-end',
     padding: 8,
@@ -613,7 +644,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   imageContainer: {
-    backgroundColor: '#FFFFFF', // White background for image
+    backgroundColor: '#FFFFFF',
     borderRadius: 100,
     padding: 10,
     marginBottom: 12,
@@ -623,7 +654,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   pokemonImage: {
-    width: 180, // Larger for prominence
+    width: 180,
     height: 180,
   },
   pokemonName: {
@@ -654,7 +685,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#000', // Pokémon red
+    color: '#000',
     marginBottom: 8,
   },
   typesContainer: {
@@ -693,7 +724,36 @@ const styles = StyleSheet.create({
   },
   statBarFill: {
     height: '100%',
-    backgroundColor: '#4CAF50', // Green for stat bars
+    backgroundColor: '#4CAF50',
     borderRadius: 4,
+  },
+  evolutionContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+  },
+  evolutionStep: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 8,
+  },
+  evolutionName: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  evolutionImage: {
+    width: 50,
+    height: 50,
+    marginRight: 8,
+  },
+  evolutionLevel: {
+    fontSize: 12,
+    color: '#666',
+    marginLeft: 4,
+  },
+  evolutionArrow: {
+    marginHorizontal: 8,
   },
 });
