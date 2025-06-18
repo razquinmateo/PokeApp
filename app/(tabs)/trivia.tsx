@@ -1,167 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { bancoPreguntas, Pregunta } from '../../src/data/todasPreguntas';
 
-// Banco de 30 preguntas
-const bancoPreguntas = [
-    {
-        pregunta: '¿Cuál de estos Pokémon es de tipo Fuego?',
-        opciones: ['Bulbasaur', 'Squirtle', 'Charmander', 'Pikachu'],
-        respuestaCorrecta: 'Charmander',
-    },
-    {
-        pregunta: '¿Qué tipo es Pikachu?',
-        opciones: ['Fuego', 'Eléctrico', 'Agua', 'Planta'],
-        respuestaCorrecta: 'Eléctrico',
-    },
-    {
-        pregunta: '¿Cuál es la evolución final de Bulbasaur?',
-        opciones: ['Venusaur', 'Ivysaur', 'Charizard', 'Blastoise'],
-        respuestaCorrecta: 'Venusaur',
-    },
-    {
-        pregunta: '¿Qué Pokémon es conocido por dormir mucho?',
-        opciones: ['Snorlax', 'Psyduck', 'Jigglypuff', 'Slowpoke'],
-        respuestaCorrecta: 'Snorlax',
-    },
-    {
-        pregunta: '¿Cuál de estos Pokémon es legendario?',
-        opciones: ['Zapdos', 'Pidgeot', 'Machamp', 'Golem'],
-        respuestaCorrecta: 'Zapdos',
-    },
-    {
-        pregunta: '¿Quién es el Pokémon número 1 en la Pokédex Nacional?',
-        opciones: ['Pikachu', 'Bulbasaur', 'Charmander', 'Squirtle'],
-        respuestaCorrecta: 'Bulbasaur',
-    },
-    {
-        pregunta: '¿Cuál es el tipo de Gyarados?',
-        opciones: ['Agua/Volador', 'Agua/Dragón', 'Agua', 'Agua/Fuego'],
-        respuestaCorrecta: 'Agua/Volador',
-    },
-    {
-        pregunta: '¿Qué objeto permite evolucionar a Eevee en Vaporeon?',
-        opciones: ['Piedra Agua', 'Piedra Trueno', 'Piedra Fuego', 'Piedra Hoja'],
-        respuestaCorrecta: 'Piedra Agua',
-    },
-    {
-        pregunta: '¿De qué tipo es el ataque "Lanzallamas"?',
-        opciones: ['Fuego', 'Eléctrico', 'Roca', 'Normal'],
-        respuestaCorrecta: 'Fuego',
-    },
-    {
-        pregunta: '¿Quién es el rival principal de Ash en la primera temporada?',
-        opciones: ['Gary', 'Brock', 'James', 'Tracey'],
-        respuestaCorrecta: 'Gary',
-    },
-    {
-        pregunta: '¿Qué Pokémon tiene una concha en su espalda?',
-        opciones: ['Squirtle', 'Caterpie', 'Rattata', 'Zubat'],
-        respuestaCorrecta: 'Squirtle',
-    },
-    {
-        pregunta: '¿Cuál es la evolución de Magikarp?',
-        opciones: ['Gyarados', 'Seadra', 'Goldeen', 'Tentacool'],
-        respuestaCorrecta: 'Gyarados',
-    },
-    {
-        pregunta: '¿Cuál de estos ataques es de tipo Agua?',
-        opciones: ['Hidrobomba', 'Puño Fuego', 'Impactrueno', 'Rayo Solar'],
-        respuestaCorrecta: 'Hidrobomba',
-    },
-    {
-        pregunta: '¿Cuál es el tipo de Onix?',
-        opciones: ['Roca/Tierra', 'Roca/Agua', 'Acero', 'Tierra/Agua'],
-        respuestaCorrecta: 'Roca/Tierra',
-    },
-    {
-        pregunta: '¿Qué Pokémon es conocido por decir su nombre constantemente?',
-        opciones: ['Pikachu', 'Ditto', 'Abra', 'Ekans'],
-        respuestaCorrecta: 'Pikachu',
-    },
-    {
-        pregunta: '¿Quién es el líder del gimnasio de Ciudad Plateada?',
-        opciones: ['Brock', 'Misty', 'Lt. Surge', 'Erika'],
-        respuestaCorrecta: 'Brock',
-    },
-    {
-        pregunta: '¿Cuál de estos Pokémon es una evolución de Eevee?',
-        opciones: ['Jolteon', 'Pikachu', 'Raichu', 'Mew'],
-        respuestaCorrecta: 'Jolteon',
-    },
-    {
-        pregunta: '¿Qué Pokémon tiene como habilidad principal "Levitación"?',
-        opciones: ['Gengar', 'Koffing', 'Weezing', 'Gastly'],
-        respuestaCorrecta: 'Weezing',
-    },
-    {
-        pregunta: '¿Qué tipo es super efectivo contra el tipo Agua?',
-        opciones: ['Eléctrico', 'Fuego', 'Normal', 'Bicho'],
-        respuestaCorrecta: 'Eléctrico',
-    },
-    {
-        pregunta: '¿Cuál es el tipo de Mewtwo?',
-        opciones: ['Psíquico', 'Fantasma', 'Hielo', 'Normal'],
-        respuestaCorrecta: 'Psíquico',
-    },
-    {
-        pregunta: '¿Qué Pokémon se esconde en una Pokébola con cara?',
-        opciones: ['Voltorb', 'Electrode', 'Pokébot', 'Ballmon'],
-        respuestaCorrecta: 'Voltorb',
-    },
-    {
-        pregunta: '¿Cuál es la evolución de Pichu?',
-        opciones: ['Pikachu', 'Raichu', 'Electrode', 'Jolteon'],
-        respuestaCorrecta: 'Pikachu',
-    },
-    {
-        pregunta: '¿Quién es el Pokémon fósil con forma de caparazón?',
-        opciones: ['Omanyte', 'Kabuto', 'Aerodactyl', 'Anorith'],
-        respuestaCorrecta: 'Omanyte',
-    },
-    {
-        pregunta: '¿Qué tipo es supereficaz contra el tipo Fantasma?',
-        opciones: ['Fantasma', 'Normal', 'Hada', 'Planta'],
-        respuestaCorrecta: 'Fantasma',
-    },
-    {
-        pregunta: '¿Cuál es la evolución de Machop?',
-        opciones: ['Machoke', 'Machamp', 'Hitmonlee', 'Makuhita'],
-        respuestaCorrecta: 'Machoke',
-    },
-    {
-        pregunta: '¿Qué Pokémon tiene múltiples evoluciones posibles?',
-        opciones: ['Eevee', 'Pikachu', 'Slowpoke', 'Tyrogue'],
-        respuestaCorrecta: 'Eevee',
-    },
-    {
-        pregunta: '¿Qué tipo de Pokémon es Dratini?',
-        opciones: ['Dragón', 'Agua', 'Viento', 'Psíquico'],
-        respuestaCorrecta: 'Dragón',
-    },
-    {
-        pregunta: '¿Qué Pokémon se comunica usando telepatía?',
-        opciones: ['Mewtwo', 'Alakazam', 'Mr. Mime', 'Abra'],
-        respuestaCorrecta: 'Mewtwo',
-    },
-    {
-        pregunta: '¿Quién es el Pokémon número 150 en la Pokédex?',
-        opciones: ['Mewtwo', 'Mew', 'Articuno', 'Zapdos'],
-        respuestaCorrecta: 'Mewtwo',
-    },
-    {
-        pregunta: '¿Qué Pokémon es de tipo Planta/Veneno?',
-        opciones: ['Bulbasaur', 'Oddish', 'Gloom', 'Todos los anteriores'],
-        respuestaCorrecta: 'Todos los anteriores',
-    },
-];
-
-const obtenerPreguntasAleatorias = () => {
+const obtenerPreguntasAleatorias = (): Pregunta[] => {
     const preguntasAleatorias = [...bancoPreguntas].sort(() => 0.5 - Math.random());
     return preguntasAleatorias.slice(0, 10);
 };
 
 export default function TriviaScreen() {
-    const [preguntas, setPreguntas] = useState(obtenerPreguntasAleatorias());
+    const [preguntas, setPreguntas] = useState<Pregunta[]>(obtenerPreguntasAleatorias());
     const [indiceActual, setIndiceActual] = useState(0);
     const [respuestaSeleccionada, setRespuestaSeleccionada] = useState<string | null>(null);
     const [esCorrecta, setEsCorrecta] = useState<boolean | null>(null);
@@ -243,6 +90,7 @@ export default function TriviaScreen() {
         <ScrollView contentContainerStyle={styles.container}>
             {!finalizado ? (
                 <View style={styles.quizContainer}>
+                    <Text style={styles.ronda}>Ronda {indiceActual + 1} de 10</Text>
                     <Text style={styles.pregunta}>{preguntaActual.pregunta}</Text>
 
                     {preguntaActual.opciones.map((opcion) => {
@@ -305,66 +153,75 @@ const styles = StyleSheet.create({
     container: {
         flexGrow: 1,
         padding: 20,
-        backgroundColor: '#f4f4f4',
+        backgroundColor: '#fea400', // Amarillo similar al de la imagen
     },
     quizContainer: {
-        marginTop: 40,
+        marginTop: 20, // Ajustado para dar espacio al texto de ronda
+    },
+    ronda: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#000000', // Negro para el texto de ronda
+        textAlign: 'center',
+        marginBottom: 10,
     },
     pregunta: {
         fontSize: 20,
         fontWeight: 'bold',
         marginBottom: 20,
+        color: '#000000', // Negro para contraste con fondo amarillo
     },
     opcion: {
-        backgroundColor: '#e0e0e0',
+        backgroundColor: '#4169E1', // Azul real para opciones
         padding: 15,
         borderRadius: 10,
         marginBottom: 10,
     },
     textoOpcion: {
         fontSize: 16,
+        color: '#FFFFFF', // Blanco para texto de opciones
     },
     tiempo: {
         marginTop: 20,
         fontSize: 16,
         textAlign: 'center',
-        color: '#555',
+        color: '#000000', // Negro para tiempo
     },
     botonSiguiente: {
         marginTop: 20,
-        backgroundColor: '#007bff',
+        backgroundColor: '#4169E1', // Azul para consistencia
         padding: 12,
         borderRadius: 8,
         alignItems: 'center',
     },
     textoBoton: {
-        color: '#fff',
+        color: '#FFFFFF', // Blanco para texto de botones
         fontSize: 16,
     },
     opcionCorrecta: {
-        backgroundColor: '#c8e6c9',
+        backgroundColor: '#4CAF50', // Verde para opción correcta
     },
     opcionIncorrecta: {
-        backgroundColor: '#ffcdd2',
+        backgroundColor: '#cc3300', // Rojo para opción incorrecta
     },
     feedbackContainer: {
         marginTop: 20,
         alignItems: 'center',
     },
     correcto: {
-        color: 'green',
+        color: '#000000', // Negro para "Correcto"
         fontSize: 18,
         fontWeight: 'bold',
     },
     incorrecto: {
-        color: 'red',
+        color: '#000000', // Negro para "Incorrecto"
         fontSize: 18,
         fontWeight: 'bold',
     },
     respuestaCorrecta: {
         marginTop: 5,
         fontSize: 16,
-        color: '#333',
+        color: '#000000', // Negro para respuesta correcta
     },
     finalContainer: {
         alignItems: 'center',
@@ -374,14 +231,16 @@ const styles = StyleSheet.create({
     resultado: {
         fontSize: 24,
         fontWeight: 'bold',
+        color: '#000000', // Negro para resultado
         marginBottom: 20,
     },
     puntaje: {
         fontSize: 20,
+        color: '#000000', // Negro para puntaje
         marginBottom: 30,
     },
     botonReiniciar: {
-        backgroundColor: '#28a745',
+        backgroundColor: '#4169E1', // Azul para consistencia
         padding: 12,
         borderRadius: 8,
     },
