@@ -2,7 +2,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import axios from 'axios';
 import React, { useCallback, useState } from 'react';
 import {
-  Button,
   Dimensions,
   Image,
   ScrollView,
@@ -10,7 +9,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View, ViewStyle,
+  View, ViewStyle
 } from 'react-native';
 
 const MAX_POKEMON = 151;
@@ -140,11 +139,11 @@ export default function AdivinarScreen() {
 
   return (
     <ScrollView
-        contentContainerStyle={[
-          styles.container,
-          { paddingTop: (StatusBar.currentHeight || 20) + (width * 0.06) },
-        ]}
-      >
+      contentContainerStyle={[
+        styles.container,
+        { paddingTop: (StatusBar.currentHeight || 20) + (width * 0.06) },
+      ]}
+    >
       {!gameStarted ? (
         <View style={{ alignItems: 'center' }}>
           <Image
@@ -161,6 +160,11 @@ export default function AdivinarScreen() {
         </View>
       ) : showResults ? (
         <View style={{ alignItems: 'center' }}>
+          <Image
+            source={require('../../assets/images/quien-es-ese-pokemon.png')}
+            style={[styles.logo, { width: logoWidth, height: logoHeight }]}
+            resizeMode="contain"
+          />
           <Text style={[styles.feedback, { fontSize }]}>Juego terminado 🎮</Text>
           <Text style={[styles.feedback, { fontSize }]}>Puntaje final: {score} / 5</Text>
           <TouchableOpacity
@@ -169,30 +173,41 @@ export default function AdivinarScreen() {
           >
             <Text style={[styles.startButtonText, { fontSize }]}>Volver a jugar</Text>
           </TouchableOpacity>
-          <View style={{ marginTop: height * 0.015 }}>
-            <Button title="Finalizar juego" onPress={endGame} color="red" />
-          </View>
+          <TouchableOpacity
+            style={[
+              styles.startButton,
+              {
+                backgroundColor: 'red',
+                paddingVertical,
+                paddingHorizontal,
+                marginTop: height * 0.02,
+              },
+            ]}
+            onPress={endGame}
+          >
+            <Text style={[styles.startButtonText, { fontSize }]}>Finalizar juego</Text>
+          </TouchableOpacity>
         </View>
       ) : (
         <>
-          <Text style={[styles.feedback, { fontSize }]}>Ronda {round} de 5</Text>
-
           <Image
             source={require('../../assets/images/quien-es-ese-pokemon.png')}
             style={[styles.logo, { width: logoWidth, height: logoHeight }]}
             resizeMode="contain"
           />
 
+          <Text style={[styles.feedback, { fontSize }]}>Ronda {round} de 5</Text>
+
           {correctPokemon && (
-              <Image
-                source={{ uri: selectedAnswer ? correctPokemon.image ?? '' : correctPokemon.silhouette ?? '' }}
-                style={[
-                  styles.image,
-                  { width: imageSize, height: imageSize, tintColor: selectedAnswer ? undefined : 'black' },
-                ]}
-                resizeMode="contain"
-              />
-            )}
+            <Image
+              source={{ uri: selectedAnswer ? correctPokemon.image ?? '' : correctPokemon.silhouette ?? '' }}
+              style={[
+                styles.image,
+                { width: imageSize, height: imageSize, tintColor: selectedAnswer ? undefined : 'black' },
+              ]}
+              resizeMode="contain"
+            />
+          )}
 
           <View style={[styles.optionsContainer, optionLayout]}>
             {pokemonOptions.map((option) => (
@@ -216,12 +231,22 @@ export default function AdivinarScreen() {
           {feedback !== "" && <Text style={[styles.feedback, { fontSize }]}>{feedback}</Text>}
 
           {selectedAnswer && (
-            <Button title={round >= 5 ? "Ver resultados" : "Siguiente ronda"} onPress={handleNext} color="#4CAF50" />
+            <TouchableOpacity
+              style={[styles.startButton, { paddingVertical, paddingHorizontal, marginTop: height * 0.015, backgroundColor: '#4CAF50' }]}
+              onPress={handleNext}
+            >
+              <Text style={[styles.startButtonText, { fontSize }]}>
+                {round >= 5 ? "Ver resultados" : "Siguiente ronda"}
+              </Text>
+            </TouchableOpacity>
           )}
 
-          <View style={{ marginTop: height * 0.02 }}>
-            <Button title="Finalizar juego" onPress={endGame} color="red" />
-          </View>
+          <TouchableOpacity
+            style={[styles.startButton, { backgroundColor: 'red', paddingVertical, paddingHorizontal, marginTop: height * 0.02 }]}
+            onPress={endGame}
+          >
+            <Text style={[styles.startButtonText, { fontSize }]}>Finalizar juego</Text>
+          </TouchableOpacity>
         </>
       )}
     </ScrollView>
@@ -234,7 +259,7 @@ const styles = StyleSheet.create({
     padding: width * 0.06,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFA500',
+    backgroundColor: '#FFEB99',
   },
   logo: {
     marginBottom: height * 0.02,
