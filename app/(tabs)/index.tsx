@@ -393,7 +393,7 @@ export default function Pokedex() {
                   {selectedPokemon.stats.map((stat: any) => (
                     <View key={stat.name} style={styles.statRow}>
                       <Text style={styles.statName}>
-                        {stat.name.toUpperCase()}:
+                        {statTranslations[stat.name] || stat.name.toUpperCase()}:
                       </Text>
                       <Text style={styles.statValue}>{stat.value}</Text>
                       <View style={styles.statBar}>
@@ -480,6 +480,15 @@ const genColors: Record<string, string> = {
   'generation-vii': '#FF70A6', // Rosa
   'generation-viii': '#2A9D8F', // Verde turquesa
   'generation-ix': '#9D4EDD', // Violeta
+};
+
+const statTranslations: Record<string, string> = {
+  hp: 'PS',
+  attack: 'Ataque',
+  defense: 'Defensa',
+  'special-attack': 'Ataque Especial',
+  'special-defense': 'Defensa Especial',
+  speed: 'Velocidad',
 };
 
 const styles = StyleSheet.create({
